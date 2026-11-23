@@ -1,0 +1,102 @@
+# MiniMax H3 Base Prompt Guide
+
+## Modes
+
+- **T2VA** builds a complete audiovisual timeline from text.
+- **I2VA** uses a first frame and develops forward from it.
+- **FL2VA** connects a first frame to a last frame with a continuous path.
+- **L2VA** infers a plausible opening and converges on a supplied last frame.
+
+## Final structure
+
+T2VA starts directly with the three core fields:
+
+```text
+integrated_multimodal_description: [Shot 1] ...
+
+overall_soundscape: ...
+
+non_diegetic_music: ...
+```
+
+I2VA starts with:
+
+```text
+For the target video, at 0.00 seconds into the target video, <Picture 1> (from [Shot 1]) is fully referenced.
+```
+
+FL2VA starts with:
+
+```text
+How the reference pictures align with the target video — Picture 1 (from Shot 1) aligns with the 0.00-second mark of the target video; Picture 2 (from Shot N) aligns with the S.SS-second mark of the target video.
+```
+
+L2VA starts with:
+
+```text
+How the reference pictures align with the target video — <Picture 1> (from [Shot N]) aligns with the S.SS-second mark of the target video.
+```
+
+For L2VA, `N` is the actual final shot and `S.SS` is the effective duration formatted to exactly two decimal places. The alignment instruction is the first line, followed by one blank line.
+
+## Keyframe development
+
+### I2VA
+
+Begin `[Shot 1]` by establishing the style, subjects, composition, scene, and visual anchors in `<Picture 1>`. Then describe action onset, continuous development, and the result or reaction. Keep identity, clothing, colors, objects, and spatial relationships consistent.
+
+### FL2VA
+
+Treat Picture 1 as the opening and Picture 2 as the ending. Describe the observable path between them: pose changes, movement, object manipulation, camera evolution, and lighting transitions. Prefer one continuous shot unless multiple shots are explicitly requested. The last frame must be reached at the end of the final shot.
+
+### L2VA
+
+Infer a compatible earlier state and describe how actions, object states, camera, and composition gradually land on the supplied last frame. The last reference image belongs to the final shot, not automatically to Shot 1.
+
+## Timeline and shots
+
+Start `[Shot 1]` without a timestamp. Every later shot begins with a strictly increasing cut time within the video duration:
+
+```text
+[Shot 2] At 00:03.500, the camera cuts to...
+```
+
+Use `the camera cuts to`, `the shot cuts to`, `the shot transitions to`, `the shot changes to`, or `the shot switches to` for ordinary cuts. Use cross-dissolve, fade, or wipe only when explicitly requested.
+
+## Camera language
+
+Use natural English that can include:
+
+- Motion: `Zoom In`, `Zoom Out`, `Push In`, `Pull Out`, `Pan Left`, `Pan Right`, `Truck Left`, `Truck Right`, `Tilt Up`, `Tilt Down`, `Pedestal Up`, `Pedestal Down`, `Arc Shot`, `Tracking Shot`, `Static Shot`, `Shake Slightly`, `Shake Strongly`, `POV`, `Roll Clockwise`, or `Roll Counterclockwise`.
+- Amplitude: `with small amplitude` or `with large amplitude`.
+- Speed: `at slow speed` or `at fast speed`.
+
+Example:
+
+```text
+The camera pushes in with small amplitude at slow speed toward the folded letter in her hands.
+```
+
+## Speakers, dialogue, and text
+
+Assign stable `(S1)`, `(S2)`, and later IDs only to subjects who speak, sing, or produce an off-screen human voice. Keep the same ID across shots. Establish voice and visual identity on first appearance.
+
+Put only the language tag and the exact user-provided words inside the dialogue tag:
+
+```text
+The young woman with a quiet, breathy voice (S1) says: <d>[English] I get off at the next station.</d>
+```
+
+For voiceover, use the exact phrase `says in an off-screen voiceover` and state immediately that the on-screen character's lips remain closed.
+
+Use `<d_cont>` when the same dialogue or lyrics cross a cut, and `<d_end>` when speech is truncated by the end of the video. State that the audio continues across the cut when applicable.
+
+Put visible banners, signs, subtitles, labels, and neon text in double quotes. Preserve the original language, words, and punctuation verbatim.
+
+## Core audio fields
+
+`integrated_multimodal_description` is the main timeline. Include visuals, actions, speakers, dialogue, singing, and diegetic sound where they occur.
+
+`overall_soundscape` is one continuous paragraph of 1–4 English sentences about ambient sound, physical action sounds, and non-verbal human sounds. Do not repeat dialogue, singing, or diegetic music.
+
+`non_diegetic_music` is 1–3 English sentences about music audible only to the audience. Describe instruments, speed, rhythm, and dynamic changes. Use `N/A` when absent. Music audible to characters belongs in the timeline instead.

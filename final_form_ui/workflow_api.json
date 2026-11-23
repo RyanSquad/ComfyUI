@@ -1,0 +1,574 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "krea2_raw_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    },
+    "_meta": {
+      "title": "Krea 2 RAW"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+      "type": "krea2",
+      "device": "default"
+    },
+    "_meta": {
+      "title": "Text Encoder (type = krea2)"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    },
+    "_meta": {
+      "title": "VAE"
+    }
+  },
+  "4": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "lora_name": "krea2_turbo_lora_rank_64_bf16.safetensors",
+      "strength_model": 0.75
+    },
+    "_meta": {
+      "title": "Turbo LoRA (makes RAW fast)"
+    }
+  },
+  "12": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "4",
+        0
+      ],
+      "lora_name": "cstmndl_Verite_krea2_bypass.safetensors",
+      "strength_model": 0.8
+    },
+    "_meta": {
+      "title": "cstmndl + Verite (combined)"
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a young CSTMDL woman with tan, olive skin tone. The woman has long, curly brown hair. The woman is curvy. Chubby arms. Very fine, short, blonde hairs on her arms. If ears are shown, they are pierced with a single diamond stud.\nNatural lighting on the woman's skin, her clothing ,and the environment\n\nslight film grain, face clearly in frame, looking at camera\n\nThe background is a fully furnished bedroom.\n\nThe woman is standing and posing with both hands on her chest\n\nThe woman has huge natural breasts with small areolas under her clothing.\nThe woman has a large ass and thick thighs. \nThe woman is wearing a white tank top and pink fuzzy short shorts.\n"
+    },
+    "_meta": {
+      "title": "Prompt (include cstmndl)"
+    }
+  },
+  "6": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "5",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Negative (CFG 1 = zero)"
+    }
+  },
+  "7": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 832,
+      "height": 1216,
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "Size (portrait)"
+    }
+  },
+  "8": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "12",
+        0
+      ],
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "7",
+        0
+      ],
+      "seed": 582129449648539,
+      "steps": 12,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1
+    }
+  },
+  "9": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "8",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "10": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "9",
+        0
+      ],
+      "filename_prefix": "FinalForm_Before"
+    },
+    "_meta": {
+      "title": "Before Swap (1K)"
+    }
+  },
+  "16": {
+    "class_type": "ImageScale",
+    "inputs": {
+      "image": [
+        "41",
+        0
+      ],
+      "upscale_method": "nearest-exact",
+      "width": 1664,
+      "height": 2432,
+      "crop": "disabled"
+    },
+    "_meta": {
+      "title": "Fit to 2160x3840"
+    }
+  },
+  "17": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "18",
+        0
+      ],
+      "filename_prefix": "Krea2_cstmndl_Verite_2K"
+    },
+    "_meta": {
+      "title": "Save 2K+"
+    }
+  },
+  "18": {
+    "class_type": "ReActorCinematicEnhancer",
+    "inputs": {
+      "image": [
+        "16",
+        0
+      ],
+      "intensity": 0.35,
+      "lut_file": "none",
+      "lut_strength": 0.7,
+      "lut_gamma_correction": true,
+      "film_grain_method": "advanced",
+      "film_grain_power": 0.18,
+      "film_grain_scale": 1.5,
+      "film_grain_sat": 0.12,
+      "film_grain_shadows": 0.3,
+      "film_grain_highs": 0.15,
+      "film_blur_strength": 0,
+      "film_focal_depth": 0,
+      "film_focus_spread": 1.5,
+      "film_vignette_intensity": 0.06,
+      "cc_temperature": 0,
+      "cc_hue": 0,
+      "cc_brightness": 0,
+      "cc_contrast": 0,
+      "cc_saturation": -5,
+      "cc_gamma": 1,
+      "hdr_intensity": 0.38,
+      "hdr_shadow_intensity": 0.3,
+      "hdr_highlight_intensity": 0.55,
+      "hdr_contrast": 0.05,
+      "hdr_enhance_color": 0.1
+    },
+    "_meta": {
+      "title": "Natural look (film grain)"
+    }
+  },
+  "20": {
+    "class_type": "PrimitiveBoolean",
+    "inputs": {
+      "value": false
+    },
+    "_meta": {
+      "title": "Enable Clothing Swap"
+    }
+  },
+  "21": {
+    "class_type": "PrimitiveStringMultiline",
+    "inputs": {
+      "value": "product photo of a white tank top and pink fuzzy short shorts, flat lay on pure white background, no person, no mannequin, studio lighting, isolated garments, high detail fabric texture, opaque solid fabric, no transparency, thick cloth"
+    },
+    "_meta": {
+      "title": "Clothing Prompt"
+    }
+  },
+  "22": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": [
+        "21",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Encode Clothing"
+    }
+  },
+  "23": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 832,
+      "height": 832,
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "Clothing Size (square)"
+    }
+  },
+  "24": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "12",
+        0
+      ],
+      "positive": [
+        "22",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "23",
+        0
+      ],
+      "seed": 1,
+      "steps": 12,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1
+    },
+    "_meta": {
+      "title": "KSampler Clothing"
+    }
+  },
+  "25": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "24",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "VAE Decode Clothing"
+    }
+  },
+  "26": {
+    "class_type": "EmptyImage",
+    "inputs": {
+      "width": 64,
+      "height": 64,
+      "batch_size": 1,
+      "color": 0
+    },
+    "_meta": {
+      "title": "Blank (swap off)"
+    }
+  },
+  "27": {
+    "class_type": "ComfySwitchNode",
+    "inputs": {
+      "switch": [
+        "20",
+        0
+      ],
+      "on_false": [
+        "26",
+        0
+      ],
+      "on_true": [
+        "25",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Preview Clothing if Enabled"
+    }
+  },
+  "28": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "27",
+        0
+      ],
+      "filename_prefix": "FinalForm_Clothing"
+    },
+    "_meta": {
+      "title": "Clothing Preview"
+    }
+  },
+  "41": {
+    "class_type": "ComfySwitchNode",
+    "inputs": {
+      "switch": [
+        "20",
+        0
+      ],
+      "on_false": [
+        "9",
+        0
+      ],
+      "on_true": [
+        "37",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Use Swapped Clothes if Enabled"
+    }
+  },
+  "42": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "41",
+        0
+      ],
+      "filename_prefix": "FinalForm_After"
+    },
+    "_meta": {
+      "title": "After Swap (1K)"
+    }
+  },
+  "29": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "12",
+        0
+      ],
+      "lora_name": "krea_outfittransfer.safetensors",
+      "strength_model": 0.95
+    },
+    "_meta": {
+      "title": "Outfit Transfer LoRA"
+    }
+  },
+  "30": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "9",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Encode Person (swap)"
+    }
+  },
+  "31": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "25",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Encode Clothing (swap)"
+    }
+  },
+  "32": {
+    "class_type": "EmptySD3LatentImage",
+    "inputs": {
+      "width": 832,
+      "height": 1216,
+      "batch_size": 1
+    },
+    "_meta": {
+      "title": "Swap Canvas"
+    }
+  },
+  "33": {
+    "class_type": "Krea2EditModelPatch",
+    "inputs": {
+      "model": [
+        "29",
+        0
+      ],
+      "source_latent": [
+        "30",
+        0
+      ],
+      "source_latent_b": [
+        "31",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "source_image": [
+        "9",
+        0
+      ],
+      "source_image_b": [
+        "25",
+        0
+      ],
+      "target_latent": [
+        "32",
+        0
+      ],
+      "ref_boost": 2.0,
+      "ref_boost_a": 2.5,
+      "fit_mode": "fit",
+      "ref_position": "aligned (trained)",
+      "ref_position_a": "aligned (trained)"
+    },
+    "_meta": {
+      "title": "Krea2 Edit (source patch)"
+    }
+  },
+  "34": {
+    "class_type": "Krea2EditGroundedEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "image": [
+        "9",
+        0
+      ],
+      "image_b": [
+        "25",
+        0
+      ],
+      "prompt": "same woman, same pose, same face, same hair, same background, keep the exact same body shape and breast size under the clothes, transfer the outfit with opaque solid fabric that fully covers the chest, no see-through shirt, no skin or cleavage showing through the fabric, realistic thick cloth occlusion and folds",
+      "grounding_px": 768,
+      "system_prompt": ""
+    },
+    "_meta": {
+      "title": "Encode Swap (positive)"
+    }
+  },
+  "35": {
+    "class_type": "Krea2EditGroundedEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "image": [
+        "9",
+        0
+      ],
+      "image_b": [
+        "25",
+        0
+      ],
+      "prompt": "",
+      "grounding_px": 768,
+      "system_prompt": ""
+    },
+    "_meta": {
+      "title": "Encode Swap (negative empty)"
+    }
+  },
+  "36": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "33",
+        0
+      ],
+      "positive": [
+        "34",
+        0
+      ],
+      "negative": [
+        "35",
+        0
+      ],
+      "latent_image": [
+        "32",
+        0
+      ],
+      "seed": 3,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1
+    },
+    "_meta": {
+      "title": "KSampler Clothing Swap (Krea2)"
+    }
+  },
+  "37": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "36",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "VAE Decode Swapped (Krea2)"
+    }
+  }
+}

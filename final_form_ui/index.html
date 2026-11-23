@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Final Form</title>
+  <style>
+    :root {
+      --bg: #12141a;
+      --panel: #1a1e27;
+      --line: #2a3140;
+      --text: #e8ecf3;
+      --muted: #9aa3b5;
+      --accent: #c9a227;
+      --accent-dim: #8f7418;
+      --ok: #3d9a6a;
+      --err: #c45c5c;
+      --focus: #5b8def;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font: 15px/1.45 "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #1e2433 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #241c14 0%, transparent 50%),
+        var(--bg);
+    }
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: minmax(300px, 420px) 1fr;
+    }
+    @media (max-width: 900px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      letter-spacing: 0.02em;
+      font-weight: 650;
+    }
+    header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .status {
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .status.ok { color: var(--ok); border-color: #2f6b4c; }
+    .status.err { color: var(--err); border-color: #7a3a3a; }
+    .panel {
+      background: color-mix(in srgb, var(--panel) 92%, black);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+    }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin: 0 0 6px;
+    }
+    label.check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 0.95rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+    label.check input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+    .field { margin-bottom: 14px; }
+    textarea, input[type="number"], input[type="text"], select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #0f1218;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+    textarea:focus, input:focus, select:focus {
+      outline: 2px solid color-mix(in srgb, var(--focus) 55%, transparent);
+      border-color: var(--focus);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .hint {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.primary {
+      background: linear-gradient(180deg, #dfb83a, var(--accent));
+      color: #1a1405;
+      min-width: 140px;
+    }
+    button.primary:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+    button.ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .progress {
+      margin-top: 14px;
+      height: 8px;
+      border-radius: 99px;
+      background: #0f1218;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      display: none;
+    }
+    .progress.show { display: block; }
+    .progress > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+      transition: width 0.2s ease;
+    }
+    .msg {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+    .msg.err { color: var(--err); }
+    .gallery {
+      display: grid;
+      gap: 14px;
+    }
+    .shot {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0c0e13;
+    }
+    .shot header {
+      display: block;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+    }
+    .shot img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #000;
+    }
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Final Form</h1>
+        <p>Krea2 + cstmndl / Verite · local ComfyUI runner</p>
+      </div>
+      <div id="conn" class="status">Checking ComfyUI…</div>
+    </header>
+
+    <form class="panel" id="form">
+      <div class="field">
+        <label for="prompt">Prompt</label>
+        <textarea id="prompt" required></textarea>
+        <div class="hint">Include the trigger word <strong>cstmndl</strong> (or CSTMDL).</div>
+      </div>
+
+      <div class="field row3">
+        <div>
+          <label for="seed">Seed</label>
+          <input id="seed" type="number" min="0" step="1" />
+        </div>
+        <div>
+          <label for="steps">Steps</label>
+          <input id="steps" type="number" min="1" max="50" step="1" value="12" />
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button type="button" class="ghost" id="randSeed">Random</button>
+        </div>
+      </div>
+
+      <div class="field row">
+        <div>
+          <label for="width">Width</label>
+          <input id="width" type="number" min="256" max="2048" step="16" value="832" />
+        </div>
+        <div>
+          <label for="height">Height</label>
+          <input id="height" type="number" min="256" max="2048" step="16" value="1216" />
+        </div>
+      </div>
+
+      <div class="field row">
+        <div>
+          <label for="turbo">Turbo LoRA</label>
+          <input id="turbo" type="number" min="0" max="2" step="0.05" value="0.75" />
+        </div>
+        <div>
+          <label for="combined">Combined LoRA</label>
+          <input id="combined" type="number" min="0" max="2" step="0.05" value="0.8" />
+        </div>
+      </div>
+
+      <div class="field row">
+        <div>
+          <label for="grain">Film grain power</label>
+          <input id="grain" type="number" min="0" max="1" step="0.01" value="0.18" />
+        </div>
+        <div>
+          <label for="batch">Batch</label>
+          <input id="batch" type="number" min="1" max="8" step="1" value="1" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input id="clothingSwap" type="checkbox" />
+          Enable clothing swap
+        </label>
+        <div class="hint">When on: generates a clothing preview, then swaps it onto the model.</div>
+      </div>
+
+      <div class="field" id="clothingField" hidden>
+        <label for="clothingPrompt">Clothing prompt</label>
+        <textarea id="clothingPrompt"></textarea>
+        <div class="hint">Flat-lay / product-photo wording works best (no person).</div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="run" type="submit">Generate</button>
+        <button class="ghost" id="interrupt" type="button">Interrupt</button>
+      </div>
+      <div class="progress" id="progress"><i></i></div>
+      <div class="msg" id="msg"></div>
+    </form>
+
+    <section class="gallery" id="gallery">
+      <div class="empty">Generated images will show up here.</div>
+    </section>
+  </div>
+
+  <script>
+    const API = "/api";
+    const $ = (id) => document.getElementById(id);
+
+    let workflow = null;
+    let clientId = crypto.randomUUID();
+    let busy = false;
+
+    function randomSeed() {
+      return Math.floor(Math.random() * 1e15);
+    }
+
+    function setMsg(text, isErr = false) {
+      const el = $("msg");
+      el.textContent = text || "";
+      el.classList.toggle("err", !!isErr);
+    }
+
+    function setProgress(value, show) {
+      const bar = $("progress");
+      bar.classList.toggle("show", !!show);
+      bar.querySelector("i").style.width = `${Math.max(0, Math.min(100, value))}%`;
+    }
+
+    function viewUrl(img) {
+      const q = new URLSearchParams({
+        filename: img.filename,
+        subfolder: img.subfolder || "",
+        type: img.type || "output",
+      });
+      return `${API}/view?${q}`;
+    }
+
+    function renderImages(images) {
+      const gallery = $("gallery");
+      if (!images.length) {
+        gallery.innerHTML = `<div class="empty">No images returned.</div>`;
+        return;
+      }
+      gallery.innerHTML = images.map((img) => `
+        <figure class="shot">
+          <header>${img.label} · ${img.filename}</header>
+          <a href="${viewUrl(img)}" target="_blank" rel="noopener">
+            <img src="${viewUrl(img)}" alt="${img.filename}" />
+          </a>
+        </figure>
+      `).join("");
+    }
+
+    function applyDefaults(promptText) {
+      $("prompt").value = promptText;
+      $("seed").value = randomSeed();
+      $("steps").value = 12;
+      $("width").value = 832;
+      $("height").value = 1216;
+      $("turbo").value = 0.75;
+      $("combined").value = 0.8;
+      $("grain").value = 0.18;
+      $("batch").value = 1;
+      $("clothingSwap").checked = false;
+      $("clothingPrompt").value = workflow?.["21"]?.inputs?.value || "";
+      syncClothingUi();
+    }
+
+    function syncClothingUi() {
+      $("clothingField").hidden = !$("clothingSwap").checked;
+    }
+
+    function buildPrompt() {
+      const prompt = structuredClone(workflow);
+      prompt["5"].inputs.text = $("prompt").value;
+      prompt["8"].inputs.seed = Number($("seed").value);
+      prompt["8"].inputs.steps = Number($("steps").value);
+      prompt["7"].inputs.width = Number($("width").value);
+      prompt["7"].inputs.height = Number($("height").value);
+      prompt["7"].inputs.batch_size = Number($("batch").value);
+      prompt["4"].inputs.strength_model = Number($("turbo").value);
+      prompt["12"].inputs.strength_model = Number($("combined").value);
+      prompt["18"].inputs.film_grain_power = Number($("grain").value);
+      prompt["20"].inputs.value = $("clothingSwap").checked;
+      prompt["21"].inputs.value = $("clothingPrompt").value;
+      return prompt;
+    }
+
+    async function checkComfy() {
+      const el = $("conn");
+      try {
+        const res = await fetch(`${API}/system_stats`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        el.textContent = "ComfyUI connected";
+        el.className = "status ok";
+        return true;
+      } catch (e) {
+        el.textContent = "ComfyUI offline — start it on :8188";
+        el.className = "status err";
+        return false;
+      }
+    }
+
+    function waitForPrompt(promptId, onProgress) {
+      return new Promise((resolve, reject) => {
+        const wsUrl = `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/api/ws?clientId=${clientId}`;
+        // Browser can't WS-proxy through our simple HTTP proxy easily.
+        // Connect directly to ComfyUI websocket instead.
+        const direct = `ws://127.0.0.1:8188/ws?clientId=${clientId}`;
+        const ws = new WebSocket(direct);
+        let settled = false;
+
+        const fail = (err) => {
+          if (settled) return;
+          settled = true;
+          try { ws.close(); } catch (_) {}
+          reject(err);
+        };
+
+        ws.addEventListener("open", () => {});
+        ws.addEventListener("error", () => fail(new Error("WebSocket connection failed. Is ComfyUI running?")));
+        ws.addEventListener("message", (ev) => {
+          if (typeof ev.data !== "string") return;
+          let msg;
+          try { msg = JSON.parse(ev.data); } catch (_) { return; }
+          if (msg.type === "progress" && msg.data?.prompt_id === promptId) {
+            const pct = msg.data.max ? (100 * msg.data.value) / msg.data.max : 0;
+            onProgress?.(pct, `Step ${msg.data.value}/${msg.data.max}`);
+          }
+          if (msg.type === "executing" && msg.data?.prompt_id === promptId) {
+            if (msg.data.node == null) {
+              settled = true;
+              ws.close();
+              resolve();
+            } else {
+              onProgress?.(null, `Running node ${msg.data.node}`);
+            }
+          }
+          if (msg.type === "execution_error" && msg.data?.prompt_id === promptId) {
+            fail(new Error(msg.data.exception_message || "Execution error"));
+          }
+        });
+      });
+    }
+
+    async function collectImages(promptId) {
+      const res = await fetch(`${API}/history/${promptId}`);
+      if (!res.ok) throw new Error(`History HTTP ${res.status}`);
+      const hist = await res.json();
+      const item = hist[promptId];
+      if (!item) throw new Error("Prompt missing from history");
+      const out = [];
+      const labels = { "10": "Before", "42": "After", "17": "2K+", "28": "Clothing" };
+      for (const [nodeId, nodeOut] of Object.entries(item.outputs || {})) {
+        for (const img of nodeOut.images || []) {
+          out.push({ ...img, label: labels[nodeId] || `node ${nodeId}` });
+        }
+      }
+      const rank = { Before: 0, Clothing: 1, After: 2, "2K+": 3 };
+      out.sort((a, b) => (rank[a.label] ?? 9) - (rank[b.label] ?? 9));
+      return out;
+    }
+
+    $("clothingSwap").addEventListener("change", syncClothingUi);
+
+    $("randSeed").addEventListener("click", () => {
+      $("seed").value = randomSeed();
+    });
+
+    $("interrupt").addEventListener("click", async () => {
+      await fetch(`${API}/interrupt`, { method: "POST" });
+      setMsg("Interrupt requested.");
+    });
+
+    $("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (busy) return;
+      busy = true;
+      $("run").disabled = true;
+      setMsg("Queueing…");
+      setProgress(2, true);
+
+      try {
+        const ok = await checkComfy();
+        if (!ok) throw new Error("ComfyUI is not reachable on 127.0.0.1:8188");
+
+        const prompt = buildPrompt();
+        const promptId = crypto.randomUUID();
+        const queueRes = await fetch(`${API}/prompt`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, client_id: clientId, prompt_id: promptId }),
+        });
+        const queueBody = await queueRes.json();
+        if (!queueRes.ok) {
+          throw new Error(queueBody.error || JSON.stringify(queueBody.node_errors || queueBody));
+        }
+
+        await waitForPrompt(promptId, (pct, text) => {
+          if (pct != null) setProgress(pct, true);
+          if (text) setMsg(text);
+        });
+
+        setProgress(100, true);
+        setMsg("Fetching images…");
+        const images = await collectImages(promptId);
+        renderImages(images);
+        setMsg(`Done · ${images.length} image(s)`);
+        $("seed").value = randomSeed();
+      } catch (err) {
+        setMsg(String(err.message || err), true);
+      } finally {
+        busy = false;
+        $("run").disabled = false;
+        setTimeout(() => setProgress(0, false), 800);
+      }
+    });
+
+    (async () => {
+      const wf = await fetch("./workflow_api.json").then((r) => r.json());
+      workflow = wf;
+      applyDefaults(wf["5"].inputs.text);
+      await checkComfy();
+      setInterval(checkComfy, 10000);
+    })();
+  </script>
+</body>
+</html>

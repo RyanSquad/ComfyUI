@@ -67,10 +67,18 @@ class LogInterceptor(io.TextIOWrapper):
             if isinstance(data, str) and data.startswith("\r") and not logs[-1]["m"].endswith("\n"):
                 logs.pop()
             logs.append(entry)
-        super().write(data)
+        try:
+            super().write(data)
+        except OSError:
+            # Windows returns EINVAL when stderr is not a real console. tqdm
+            # writes the progress bar here, and a raised OSError aborts sampling.
+            pass
 
     def flush(self):
-        super().flush()
+        try:
+            super().flush()
+        except OSError:
+            pass
         for cb in self._flush_callbacks:
             cb(self._logs_since_flush)
             self._logs_since_flush = []

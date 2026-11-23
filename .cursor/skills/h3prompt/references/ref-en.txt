@@ -1,0 +1,134 @@
+# MiniMax H3 Full-Reference Prompt Guide
+
+## Required structure
+
+Write all six sections in English, preserving the original language only for dialogue, lyrics, and visible scene text:
+
+```text
+subject_definitions:
+
+summary:
+
+retention_analysis:
+
+detailed_description:
+
+overall_soundscape:
+
+non_diegetic_music:
+```
+
+`detailed_description` is the main playback-order description. Establish composition, subjects, environment, lighting, actions, state changes, camera, sound, dialogue, and where each reference applies. Do not reduce it to a plot summary or a list of relationships.
+
+## Reference labels
+
+Use stable labels with one meaning throughout all six sections:
+
+- `<Subject N>` is reusable visible content: a person, animal, object, environment, clothing, prop, interface, style, action, or effect.
+- `<Picture N>` is a concrete image used as a first frame, keyframe, last frame, edited frame, storyboard, or composition anchor.
+- `<Video N>` is a whole-video source used for editing, continuation, camera movement, cuts, rhythm, or temporal structure.
+- `<Audio N>` is a standalone audio asset or enabled synchronized audio track used for copied audio or audio reference.
+
+`subject_definitions` gives each tracked item its own line, explains the reference role, and names the features to follow. If a picture or video only identifies another item and will not be analyzed separately, cite it inside that item's definition without adding a redundant entry.
+
+Examples:
+
+```text
+<Subject 1> is the young woman in <Picture 1>, with long dark hair, a blue cardigan, and a thin silver necklace.
+<Subject 2> is the woman whose appearance comes from <Picture 1> and whose walking motion comes from <Video 1>.
+<Picture 2> is the first frame of [Shot 1], showing a woman seated beside a café window.
+<Video 1> is the source video for the target video edit.
+<Audio 1> is the voice-timbre reference for <Subject 1> (S1).
+```
+
+`<Video N>` identifies a source asset or its structure. Visible content taken from that video still belongs under a `<Subject N>` definition. A reference video does not create an `<Audio N>` merely because it contains sound.
+
+## summary
+
+Use one short English paragraph beginning with a square-bracketed task-type prefix. Available types:
+
+- `[keyframe completion]`
+- `[reference generation]`
+- `[video editing]`
+- `[video continuation]`
+- `[audio reuse]`
+- `[audio reference]`
+
+Combine applicable types with ` + ` without duplicates. The presence of a video or audio asset alone does not automatically add `video editing`, `video continuation`, or `audio reuse`.
+
+For direct source-video edits, begin:
+
+```text
+[video editing] The target video is an edited version of <Video 1>.
+```
+
+Do not introduce new labels in `summary`.
+
+## retention_analysis
+
+Use one line for each defined label. Preserve the role established in `subject_definitions`.
+
+For visible subjects, pictures, and video structure, use exactly one relationship marker:
+
+- `fully_preserved`
+- `partially_preserved`
+- `attribute_transfer`
+- `weak_reference`
+
+Format:
+
+```text
+<Subject 1> (appears in [Shot 1], [Shot 3]): fully_preserved - the identity, clothing, and pose are retained.
+<Picture 2> ([Shot 1] first frame): fully_preserved - the composition and keyframe position are retained.
+<Video 1> (cut and pacing structure): weak_reference - its camera rhythm guides the target sequence.
+```
+
+For audio, use exactly one:
+
+- `fully_copy`
+- `partially_copy`
+- `reference`
+- `weak_reference`
+
+Format:
+
+```text
+<Audio 1>: fully_copy - <Audio 1> is reused 1:1 as the target video's complete final audio track.
+<Audio 2>: reference - its timbre guides delivery without copying the original signal.
+```
+
+Do not treat newly added target actions, backgrounds, or plot events as losses of reference fidelity.
+
+## detailed_description
+
+Write the target in playback order:
+
+- Establish the overall style and lighting before `[Shot 1]`.
+- `[Shot 1]` has no timestamp. Later shots use `[Shot N] At MM:SS.mmm, ...`.
+- Insert reference labels at first appearance and wherever their role applies.
+- Use natural camera language with motion type, amplitude, and speed where meaningful.
+- Preserve speaker IDs `(S1)`, `(S2)`, and later IDs across shots.
+- Put exact dialogue or lyrics inside `<d>[Language] ... </d>`.
+- Preserve source dialogue and lyrics verbatim when directly reused; use `[unclear]` for unintelligible spans.
+- Use `<d_cont>` for dialogue or lyrics continuing across a cut and `<d_end>` for speech truncated by the final frame.
+- Put visible text in double quotes and preserve its original language and punctuation.
+
+For generation tasks, aim for a detailed description rather than a short summary. For direct video edits, scale detail to the source video's actual complexity.
+
+## Speaker and audio rules
+
+When a referenced subject speaks, retain both the visual label and the speaker ID:
+
+```text
+<Subject 2> (S1) turns toward the woman and says, <d>[English] Last summer, I went to my grandfather's house.</d>
+```
+
+Assign speaker IDs by the order of actual vocal events in the target video. An `<Audio N>` definition bound to a subject reuses that subject's speaker ID; it does not create a new one.
+
+If a voice belongs to a concrete person, character, narrator, or independent vocal source, assign `(Sx)`. If words exist only inside directly reused background music or a complete soundtrack, keep them associated with `<Audio N>` rather than inventing a separate speaker.
+
+## Sound fields
+
+`overall_soundscape` contains ambience, physical action sounds, and non-verbal human sounds. Dialogue and shot-specific sound remain in `detailed_description`.
+
+`non_diegetic_music` describes audience-only music through instrumentation, tempo, rhythm, and dynamic development. Use `N/A` when absent. If referenced audio has multiple layers, describe each relationship in the appropriate sound field.
